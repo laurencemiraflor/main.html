@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>TO HANSEL</title>
+    <style>
+        :root {
+            --primary-pink: #ff4d6d;
+            --soft-pink: #ffeef2;
+            --btn-green: #2ecc71;
+            --btn-red: #e74c3c;
+            --btn-gray: #95a5a6;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            background-color: var(--soft-pink);
+            font-family: 'Comic Sans MS', 'Chalkboard SE', sans-serif;
+            overflow: hidden;
+            touch-action: none; 
+        }
+
+        #card {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2);
+            text-align: center;
+            width: 350px; /* Fixed width for better control */
+            z-index: 10;
+            transition: opacity 0.5s ease, transform 0.5s ease;
+        }
+
+        h1 { color: var(--primary-pink); font-size: 1.8rem; }
+        
+        .btn-container {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin-top: 30px;
+            height: 60px;
+            position: relative; /* Base for the initial button position */
+        }
+
+        button {
+            padding: 12px 25px;
+            font-size: 1.1rem;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: transform 0.2s, background-color 0.3s;
+        }
+
+        #yesBtn { background-color: var(--btn-green); color: white; }
+
+        /* No button is now fixed to the screen so it won't vanish inside divs */
+        #noBtn {
+            background-color: var(--btn-red);
+            color: white;
+            position: fixed; 
+            z-index: 9999;
+            transition: left 0.4s ease-out, top 0.4s ease-out;
+        }
+
+        #closeBtn {
+            background-color: var(--btn-gray);
+            color: white;
+            margin-top: 20px;
+        }
+
+        #confession {
+            display: none;
+            animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes popIn {
+            0% { transform: scale(0); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .heart {
+            position: absolute;
+            color: var(--primary-pink);
+            pointer-events: none;
+            animation: float 3s linear forwards;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="card">
+        <div id="main-content">
+            <h1>I want to tell you something 🧸</h1>
+            <p>Can I proceed?...</p>
+            <div class="btn-container">
+                <button id="yesBtn">Yes</button>
+                <div style="width: 80px;"></div> 
+            </div>
+        </div>
+
+        <div id="confession">
+            <h1>To Hansel, ✨</h1>
+            <p>Hey, I just wanted to tell you something honestly. Before, I had feelings for you and I liked you more than just a friend. But over time, those feelings changed, and now I don’t see you that way anymore.</p>
+            <p>What I realized instead is that I’m really proud and grateful to have you as my friend. You’re someone I respect and appreciate a lot, and our friendship means a lot to me.</p>
+            <p style="font-style: italic; color: #555;">Hope we can retain our closeness, bff!</p>
+            <button id="closeBtn">Click here to close</button>
+        </div>
+    </div>
+
+    <button id="noBtn">No</button>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const card = document.getElementById('card');
+        const mainContent = document.getElementById('main-content');
+        const confession = document.getElementById('confession');
+
+        let dodgeCount = 0;
+
+        // Set initial position of No button next to Yes button
+        function setInitialNoPos() {
+            const yesRect = yesBtn.getBoundingClientRect();
+            noBtn.style.left = (yesRect.right + 20) + 'px';
+            noBtn.style.top = yesRect.top + 'px';
+        }
+        window.onload = setInitialNoPos;
+        window.onresize = setInitialNoPos;
+
+        const handleInteraction = (e) => {
+            if (dodgeCount < 3) {
+                if (e.type === 'touchstart') e.preventDefault();
+                
+                // Jump anywhere within the visible window
+                const padding = 60;
+                const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+                const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+                
+                const randomX = Math.max(padding, Math.random() * maxX);
+                const randomY = Math.max(padding, Math.random() * maxY);
+                
+                noBtn.style.left = `${randomX}px`;
+                noBtn.style.top = `${randomY}px`;
+                
+                dodgeCount++;
+            }
+        };
+
+        noBtn.addEventListener('mouseover', handleInteraction);
+        noBtn.addEventListener('touchstart', handleInteraction);
+
+        noBtn.addEventListener('click', () => {
+            if (dodgeCount >= 3) {
+                alert("Nice try, Hansel! But you have to click Yes. 😉");
+            }
+        });
+
+        yesBtn.addEventListener('click', () => {
+            mainContent.style.display = 'none';
+            confession.style.display = 'block';
+            noBtn.style.display = 'none'; // Hide the tease when he finally wins
+            createHearts();
+        });
+
+        closeBtn.addEventListener('click', () => {
+            card.style.opacity = '0';
+            card.style.transform = 'scale(0.9)';
+            setTimeout(() => card.style.display = 'none', 500);
+        });
+
+        function createHearts() {
+            for(let i = 0; i < 30; i++) {
+                setTimeout(() => {
+                    const heart = document.createElement('div');
+                    heart.classList.add('heart');
+                    heart.innerHTML = '❤️';
+                    heart.style.left = Math.random() * 100 + 'vw';
+                    heart.style.top = '100vh';
+                    heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                    document.body.appendChild(heart);
+                    setTimeout(() => heart.remove(), 3000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>
